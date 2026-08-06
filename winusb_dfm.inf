@@ -1,0 +1,37 @@
+; WinUSB driver install for the DFM Bootloader WinUSB interface (MI_03).
+; Also registers DeviceInterfaceGUIDs so applications can locate the device.
+; Usage: Device Manager -> right-click "DFM Bootloader" (hardware ID ends in
+;        &MI_03) -> Update driver -> Browse my computer -> let me pick ->
+;        Have Disk -> select this file.
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = USBDevice
+ClassGuid   = {88bae032-5a81-49f0-bc3d-a4ff138216d6}
+Provider    = %ProviderName%
+DriverVer   = 08/04/2026,1.0.0.0
+CatalogFile = winusb_dfm.cat
+
+[Manufacturer]
+%ProviderName%=DeviceList,NTamd64
+
+[DeviceList.NTamd64]
+%DeviceName%=DriverInstall, USB\VID_16C0&PID_05DF&MI_03
+
+[DriverInstall]
+Include = winusb.inf
+Needs   = WINUSB.NT
+
+[DriverInstall.Services]
+Include = winusb.inf
+Needs   = WINUSB.NT.Services
+
+[DriverInstall.HW]
+AddReg = Dev_AddReg
+
+[Dev_AddReg]
+HKR,,DeviceInterfaceGUIDs,0x10000,"{9B0D1CA8-2D68-4BA2-9E72-401055510001}"
+
+[Strings]
+ProviderName = "DFM"
+DeviceName   = "DFM Bootloader WinUSB"
