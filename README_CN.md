@@ -56,6 +56,25 @@ pip install -r requirements.txt
 - `hidapi>=0.14.0`
 - `pyserial>=3.5`
 
+## Handler 配置
+
+设备需运行 Programmer 应用固件。在 BootLoader 页选择传输方式（默认 WinUSB），
+然后切换到 Handler 页操作：
+
+- **读取**：发送 `0xA0`（无参数），校验应答后回填全部 7 个参数。
+- **存储**：发送 `0xA1` 和 9 字节配置，由下位机应用并保存到 EEPROM；
+  只有收到成功应答才显示存储成功。可随后点击读取检查保存值。
+
+配置字节依次为 `sotLevel, eotLevel, busyLevel, passLevel, ngLevel`（各 1 字节，0/1），
+再跟 `delayMsBinToEot, delayMsMinTestTime`（各 2 字节，小端序，0–60000 ms）。
+发送的是紧凑的 9 字节参数，不包含 C 结构体对齐填充或 EEPROM 记录头/CRC。
+
+STK500v2 应答正文：读取为 `[A0, 00, 配置9字节]`，存储为 `[A1, 00]`；
+第二字节非零表示失败。PC 校验帧 XOR、序号、命令回显、状态码及参数长度。
+通信在后台执行，期间禁用配置输入及设备操作按钮；读取失败保留原有界面值。
+
+协议测试：`python -m unittest -v test_handler_protocol`（模拟传输，不写真实设备）。
+
 ## 构建
 
 ```bash
